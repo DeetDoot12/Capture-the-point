@@ -22,7 +22,7 @@ def get_screen_resolution_height():
 TEAM_COUNT=2
 POINTS_NEEDED_FOR_WIN=240
 POINT_FREQUENCY=1
-NUMBERS_REQUIRED_FOR_CAPTURE=8
+NUMBERS_REQUIRED_FOR_CAPTURE=13
 TIME_LEFT_WHEN_BEEP_STARTS=60
 LOCKOUT_DURATION=1
 INACTIVITY_TIME=5
@@ -30,6 +30,8 @@ CAPTURE_PROGRESS_DECREASE_RATE=8
 DISPLAY_CHANNEL=0
 INTERACTABLE_AS_DISPLAY=True
 TERRORIST_MODE=True
+ACTIVATES_AFTER=0
+
 """
 TEAM_COUNT=number of teams (max 4)
 POINTS_NEEDED_FOR_WIN=number of points for a team to win
@@ -142,6 +144,7 @@ if AUTO_SCREEN_SCALE:
 POINT_FREQUENCY*=MAX_FPS
 LOCKOUT_DURATION*=MAX_FPS
 INACTIVITY_TIME*=MAX_FPS
+ACTIVATES_AFTER*=MAX_FPS
 CAPTURE_PROGRESS_DECREASE_RATE*=MAX_FPS
 if DISPLAY_CHANNEL==-1:
     DISPLAY_CHANNEL=int(input("join which channel?"))
@@ -162,17 +165,19 @@ LOCKOUT_SURFACE=pygame.Surface((WIDTH/10,WIDTH/10))
 LOCKOUT_SURFACE.set_alpha(150)
 LOCKOUT_SURFACE.fill((200,0,0))
 
+#CELEBRATION=pygame.mixer.Sound("FNAF - 6 AM sound.mp3")
 BEEP=pygame.mixer.Sound("Barcode scanner beep sound (sound effect).mp3")
-# BOMB_SOUND=pygame.mixer.Sound("Explosion sound effect - bomb sound - boom sound.mp3")
+BOMB_SOUND=pygame.mixer.Sound("Explosion sound effect - bomb sound - boom sound.mp3")
 CAPTURE_SOUND=pygame.mixer.Sound("success - Sound Effect.mp3")
 INCORRECT_SOUND=pygame.mixer.Sound("incorrect sound effect.mp3")
 if not TERRORIST_MODE:
     BOMB_SOUND=pygame.mixer.Sound("FNAF - 6 AM sound.mp3")
     BEEP=pygame.mixer.Sound("Bonk Sound Effect - Mr (mp3cut.net).mp3")
 
+
 BAR_GAP=HEIGHT/20
 
-def main_draw(game,team_count,points_needed_for_win,numbers_required_for_capture,capture_green_flash_duration,correct_green_flash_duration):
+def main_draw(game,team_count,points_needed_for_win,numbers_required_for_capture,capture_green_flash_duration,correct_green_flash_duration,activates_after):
     if game.team_captured[DISPLAY_CHANNEL%10]==None:
         SCREEN.fill((255,255,255))
     elif game.team_captured[DISPLAY_CHANNEL%10]==0:
@@ -275,6 +280,14 @@ def main_draw(game,team_count,points_needed_for_win,numbers_required_for_capture
                  win_text=WIN_FONT.render("PINK WINS!",True,(0,0,0),None)
             SCREEN.blit(win_text,pygame.Rect(WIDTH/2-win_text.get_width()/2,HEIGHT/2-win_text.get_height()/2,1,1))
 
+    
+    if activates_after>0:
+        SCREEN.fill((0,0,0))
+        display_number_text=DISPLAY_NUMBER_FONT.render(str(int(activates_after/MAX_FPS)),True,(255,255,255),None)
+        SCREEN.blit(display_number_text,pygame.Rect(WIDTH/2-display_number_text.get_width()/2,HEIGHT/2-display_number_text.get_height()/2,1,1))
+    elif activates_after==0:
+        pygame.mixer.Sound.play(CELEBRATION)
+
     pygame.display.update()
 
 
@@ -297,7 +310,7 @@ def main():
     else:
         connected=True
     
-    
+    activates_after=ACTIVATES_AFTER
     running=True
     inactivity_time=0
     point_addition_timer=0
@@ -328,6 +341,7 @@ def main():
     number_seperation=NUMBER_SEPERATION
     new_game_reset_timer=MAX_FPS/2
     updated_settings=False
+    temp69=MAX_FPS
     if DISPLAY_CHANNEL%10==0 and p==0:
         game.game_over=False
         game.MAX_FPS=MAX_FPS
@@ -368,6 +382,11 @@ def main():
         
 
     while (running):
+        if temp69>0:
+            temp69-=1
+        else:
+            temp69=MAX_FPS
+            print(game.game_over)
         if not (DISPLAY_CHANNEL%10==0 and p==0):
             max_fps=game.MAX_FPS
             team_count=game.TEAM_COUNT
@@ -444,6 +463,7 @@ def main():
                 if game.lockout[DISPLAY_CHANNEL%10]<=0:
                     game.display_number[DISPLAY_CHANNEL%10]=random.randrange(0,10)
                     game.lockout[DISPLAY_CHANNEL%10]=0
+            
             if game.number_pause[DISPLAY_CHANNEL%10]>0:
                 game.number_pause[DISPLAY_CHANNEL%10]-=1
                 if game.number_pause[DISPLAY_CHANNEL%10]<0:
@@ -452,6 +472,10 @@ def main():
                 inactivity_time+=1
             else:
                 game.team_capturing[DISPLAY_CHANNEL%10]=None
+            if activates_after>-1:
+                activates_after-=1
+                if -1<activates_after<0:
+                    activates_after=0
             game.duration_since_correct[DISPLAY_CHANNEL%10]+=1
             game.time_since_captured[DISPLAY_CHANNEL%10]+=1
         if game.game_over:
@@ -477,7 +501,7 @@ def main():
                 keys_pressed.append(j)
         events=pygame.event.get()
         for event in range(0,len(events)+1):
-            if ((event!=len(events) and events[event].type==pygame.KEYDOWN) or len(keys_pressed)>0) and not game.game_over and (p==0 or INTERACTABLE_AS_DISPLAY):
+            if ((event!=len(events) and events[event].type==pygame.KEYDOWN) or len(keys_pressed)>0) and not game.game_over and (p==0 or INTERACTABLE_AS_DISPLAY) and activates_after==-1:
                 try:
                     key=events[event].key
                 except Exception as e:
@@ -822,7 +846,7 @@ def main():
                 connected=False
            
         if running:
-            main_draw(game,team_count,points_needed_for_win,numbers_required_for_capture,capture_green_flash_duration,correct_green_flash_duration)
+            main_draw(game,team_count,points_needed_for_win,numbers_required_for_capture,capture_green_flash_duration,correct_green_flash_duration,activates_after)
 
 
 
