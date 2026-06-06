@@ -166,13 +166,23 @@ LOCKOUT_SURFACE.set_alpha(150)
 LOCKOUT_SURFACE.fill((200,0,0))
 
 #CELEBRATION=pygame.mixer.Sound("FNAF - 6 AM sound.mp3")
-BEEP=pygame.mixer.Sound("Barcode scanner beep sound (sound effect).mp3")
-BOMB_SOUND=pygame.mixer.Sound("Explosion sound effect - bomb sound - boom sound.mp3")
-CAPTURE_SOUND=pygame.mixer.Sound("success - Sound Effect.mp3")
-INCORRECT_SOUND=pygame.mixer.Sound("incorrect sound effect.mp3")
-if not TERRORIST_MODE:
-    BOMB_SOUND=pygame.mixer.Sound("FNAF - 6 AM sound.mp3")
-    BEEP=pygame.mixer.Sound("Bonk Sound Effect - Mr (mp3cut.net).mp3")
+try:
+    BEEP=pygame.mixer.Sound("Barcode scanner beep sound (sound effect).mp3")
+    BOMB_SOUND=pygame.mixer.Sound("Explosion sound effect - bomb sound - boom sound.mp3")
+    CAPTURE_SOUND=pygame.mixer.Sound("success - Sound Effect.mp3")
+    INCORRECT_SOUND=pygame.mixer.Sound("incorrect sound effect.mp3")
+    if not TERRORIST_MODE:
+        BOMB_SOUND=pygame.mixer.Sound("FNAF - 6 AM sound.mp3")
+        BEEP=pygame.mixer.Sound("Bonk Sound Effect - Mr (mp3cut.net).mp3")
+except:
+    BEEP=pygame.mixer.Sound("capture the flag/Barcode scanner beep sound (sound effect).mp3")
+    BOMB_SOUND=pygame.mixer.Sound("capture the flag/Explosion sound effect - bomb sound - boom sound.mp3")
+    CAPTURE_SOUND=pygame.mixer.Sound("capture the flag/success - Sound Effect.mp3")
+    INCORRECT_SOUND=pygame.mixer.Sound("capture the flag/incorrect sound effect.mp3")
+    if not TERRORIST_MODE:
+        BOMB_SOUND=pygame.mixer.Sound("capture the flag/FNAF - 6 AM sound.mp3")
+        BEEP=pygame.mixer.Sound("capture the flag/Bonk Sound Effect - Mr (mp3cut.net).mp3")
+
 
 
 BAR_GAP=HEIGHT/20
